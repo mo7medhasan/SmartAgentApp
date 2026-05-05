@@ -1,7 +1,12 @@
-import { COLORS, FONT_SIZES } from '@constants/index';
+import React, { useState } from 'react';
+import {
+  View, Text, StyleSheet,
+  TouchableOpacity, ActivityIndicator,
+} from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { COLORS, FONT_SIZES } from '@constants/index';
+import { useAuthStore } from '@store/index';        // ← Zustand Store
+import type { User } from '../../types';
 
 type RootStackParamList = {
   Login: undefined;
@@ -13,21 +18,53 @@ type Props = {
 };
 
 const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ✅ جلب دالة login من Zustand
+  const login = useAuthStore(state => state.login);
+
+  const handleLogin = async () => {
+    setIsLoading(true);
+
+    // محاكاة طلب API (سيُستبدل بطلب حقيقي في المرحلة الخامسة)
+    await new Promise(resolve => setTimeout(() => resolve(undefined), 1500));
+
+    // بيانات وهمية للتجربة
+    const mockUser: User = {
+      id:    '1',
+      name:  'محمد المندوب',
+      email: 'agent@example.com',
+      phone: '01012345678',
+      role:  'agent',
+    };
+
+    // ✅ حفظ في Zustand + MMKV تلقائياً
+    login(mockUser, 'mock-token-12345');
+
+    setIsLoading(false);
+    navigation.replace('MainTabs');
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>👋 مرحباً بك</Text>
-      <Text style={styles.subtitle}>تطبيق المندوب الذكي</Text>
+      <Text style={styles.emoji}>🤖</Text>
+      <Text style={styles.title}>المندوب الذكي</Text>
+      <Text style={styles.subtitle}>سجّل دخولك للمتابعة</Text>
 
-      {/* زر الدخول — ينقل للشاشة الرئيسية */}
       <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.replace('MainTabs')}
-      >
-        <Text style={styles.buttonText}>تسجيل الدخول</Text>
+        style={[styles.button, isLoading && styles.buttonDisabled]}
+        onPress={handleLogin}
+        disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color={COLORS.white} />
+        ) : (
+          <Text style={styles.buttonText}>تسجيل الدخول</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -36,6 +73,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
+  emoji: { fontSize: 64, marginBottom: 16 },
   title: {
     fontSize: FONT_SIZES.xxl,
     fontWeight: 'bold',
@@ -43,7 +81,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.md,
     color: COLORS.gray,
     marginBottom: 48,
   },
@@ -52,6 +90,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 48,
     borderRadius: 12,
+    minWidth: 200,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: COLORS.white,
