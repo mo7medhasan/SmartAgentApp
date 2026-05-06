@@ -1,0 +1,54 @@
+{
+  "common": {
+    "appName": "Smart Agent App",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "welcome": "Welcome",
+    "subtitle": "Login to continue",
+    "loggingIn": "Logging in..."
+  },
+  "tabs": {
+    "home": "Home",
+    "map": "Map",
+    "camera": "Camera",
+    "profile": "Profile"
+  },
+  "home": {
+    "title": "Home",
+    "greeting": "Hello Agent!"
+  },
+  "map": {
+    "title": "Map",
+    "subtitle": "Map will be added soon"
+  },
+  "camera": {
+    "title": "Camera",
+    "subtitle": "Camera will be added soon"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Agent Details",
+    "roles": {
+      "agent": "Agent",
+      "manager": "Manager",
+      "admin": "Admin"
+    },
+    "language": "Language",
+    "changeLanguage": "Change Language",
+    "arabic": "Arabic",
+    "english": "English"
+  }
+}

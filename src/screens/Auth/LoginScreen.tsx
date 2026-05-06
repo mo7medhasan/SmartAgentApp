@@ -4,9 +4,10 @@ import {
   TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';          // ✅ i18next
 import { COLORS, FONT_SIZES } from '@constants/index';
-import { useAuthStore } from '@store/index';        // ← Zustand Store
-import type { User } from '../../types';
+import { useAuthStore } from '@store/index';
+import { User } from '../../types';
 
 type RootStackParamList = {
   Login: undefined;
@@ -19,17 +20,13 @@ type Props = {
 
 const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
-
-  // ✅ جلب دالة login من Zustand
-  const login = useAuthStore(state => state.login);
+  const { t } = useTranslation();                        // ✅ دالة الترجمة
+  const login  = useAuthStore(state => state.login);
 
   const handleLogin = async () => {
     setIsLoading(true);
+    await new Promise(resolve => setTimeout(()=>resolve(undefined), 1500));
 
-    // محاكاة طلب API (سيُستبدل بطلب حقيقي في المرحلة الخامسة)
-    await new Promise(resolve => setTimeout(() => resolve(undefined), 1500));
-
-    // بيانات وهمية للتجربة
     const mockUser: User = {
       id:    '1',
       name:  'محمد المندوب',
@@ -38,9 +35,7 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
       role:  'agent',
     };
 
-    // ✅ حفظ في Zustand + MMKV تلقائياً
     login(mockUser, 'mock-token-12345');
-
     setIsLoading(false);
     navigation.replace('MainTabs');
   };
@@ -48,8 +43,10 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
   return (
     <View style={styles.container}>
       <Text style={styles.emoji}>🤖</Text>
-      <Text style={styles.title}>المندوب الذكي</Text>
-      <Text style={styles.subtitle}>سجّل دخولك للمتابعة</Text>
+
+      {/* ✅ النصوص من ملف الترجمة */}
+      <Text style={styles.title}>{t('common.appName')}</Text>
+      <Text style={styles.subtitle}>{t('auth.subtitle')}</Text>
 
       <TouchableOpacity
         style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -58,7 +55,7 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
         {isLoading ? (
           <ActivityIndicator color={COLORS.white} />
         ) : (
-          <Text style={styles.buttonText}>تسجيل الدخول</Text>
+          <Text style={styles.buttonText}>{t('auth.login')}</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -73,12 +70,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-  emoji: { fontSize: 64, marginBottom: 16 },
+  emoji:    { fontSize: 64, marginBottom: 16 },
   title: {
     fontSize: FONT_SIZES.xxl,
     fontWeight: 'bold',
     color: COLORS.primary,
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
@@ -93,9 +91,7 @@ const styles = StyleSheet.create({
     minWidth: 200,
     alignItems: 'center',
   },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
+  buttonDisabled: { opacity: 0.6 },
   buttonText: {
     color: COLORS.white,
     fontSize: FONT_SIZES.lg,
