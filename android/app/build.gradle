@@ -72,6 +72,38 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def readDotEnvValue = { key ->
+    def envFile = rootProject.file("../.env")
+    if (!envFile.exists()) {
+        return null
+    }
+
+    def value = null
+    envFile.eachLine { line ->
+        def trimmed = line.trim()
+        if (!trimmed || trimmed.startsWith("#") || !trimmed.contains("=")) {
+            return
+        }
+
+        def separatorIndex = trimmed.indexOf("=")
+        def envKey = trimmed.substring(0, separatorIndex).trim()
+        if (envKey == key) {
+            value = trimmed.substring(separatorIndex + 1).trim()
+            if ((value.startsWith("\"") && value.endsWith("\"")) ||
+                (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.substring(1, value.length() - 1)
+            }
+        }
+    }
+
+    return value
+}
+
+def googleMapsApiKey = project.findProperty("GOOGLE_MAPS_API_KEY")
+    ?: System.getenv("GOOGLE_MAPS_API_KEY")
+    ?: readDotEnvValue("GOOGLE_MAPS_API_KEY")
+    ?: ""
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -84,7 +116,15 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [
+            GOOGLE_MAPS_API_KEY: googleMapsApiKey
+        ]
     }
+
+      buildFeatures {
+        buildConfig = true
+    }
+
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -115,5 +155,10 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+configurations.all {
+    resolutionStrategy {
+        force "androidx.appcompat:appcompat:1.6.1"
     }
 }
