@@ -45,7 +45,6 @@ const MapScreen = (): React.JSX.Element => {
     }
     setIsTracking(!isTracking);
   };
-  console.log('location', location);
   // ── شاشة التحميل ──────────────────────────────
   if (isLoading) {
     return (
