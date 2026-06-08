@@ -1,18 +1,24 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
-import { useTranslation } from 'react-i18next';         // ✅ i18next
-import { COLORS } from '@constants/index';
+/* eslint-disable react/no-unstable-nested-components */
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer }         from '@react-navigation/native';
+import { createNativeStackNavigator }  from '@react-navigation/native-stack';
+import { createBottomTabNavigator }    from '@react-navigation/bottom-tabs';
+import { Text} from 'react-native';
+import { useTranslation }              from 'react-i18next';
+import { COLORS }                      from '@constants/index';
+import { useAuthStore }                from '@store/index';
 
+// ── استيراد الشاشات ───────────────────────────────
+import SplashScreen  from '@screens/Splash/SplashScreen';
 import LoginScreen   from '@screens/Auth/LoginScreen';
 import HomeScreen    from '@screens/Home/HomeScreen';
 import MapScreen     from '@screens/Map/MapScreen';
 import CameraScreen  from '@screens/Camera/CameraScreen';
 import ProfileScreen from '@screens/Profile/ProfileScreen';
 
+// ── أنواع المسارات ────────────────────────────────
 export type RootStackParamList = {
+  Splash:   undefined;
   Login:    undefined;
   MainTabs: undefined;
 };
@@ -26,15 +32,31 @@ export type MainTabParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab   = createBottomTabNavigator<MainTabParamList>();
+const HomeIcon = ({ color }: { color: string }) => (
+  <Text style={{ fontSize: 22, color }}>🏠</Text>
+);
 
+const MapIcon = ({ color }: { color: string }) => (
+  <Text style={{ fontSize: 22, color }}>🗺️</Text>
+);
+
+const CameraIcon = ({ color }: { color: string }) => (
+  <Text style={{ fontSize: 22, color }}>📷</Text>
+);
+
+const ProfileIcon = ({ color }: { color: string }) => (
+  <Text style={{ fontSize: 22, color }}>👤</Text>
+);
+// ── Bottom Tabs ───────────────────────────────────
 const MainTabs = (): React.JSX.Element => {
-  const { t } = useTranslation();                       // ✅ ترجمة الـ Tabs
+  const { t } = useTranslation();
 
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor:   COLORS.primary,
         tabBarInactiveTintColor: COLORS.gray,
+        
         tabBarStyle: {
           backgroundColor: COLORS.white,
           borderTopWidth:  1,
@@ -50,42 +72,40 @@ const MainTabs = (): React.JSX.Element => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: t('tabs.home'),               // ✅ مترجم
+          tabBarLabel: t('tabs.home'),
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 22, color }}>🏠</Text>
+            <HomeIcon color={color} />
           ),
         }}
       />
-
       <Tab.Screen
         name="Map"
         component={MapScreen}
         options={{
           tabBarLabel: t('tabs.map'),
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 22, color }}>🗺️</Text>
+            <MapIcon color={color} />
           ),
+        
         }}
       />
-
       <Tab.Screen
         name="Camera"
         component={CameraScreen}
         options={{
           tabBarLabel: t('tabs.camera'),
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 22, color }}>📷</Text>
+            <CameraIcon color={color} />
           ),
         }}
       />
-
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
           tabBarLabel: t('tabs.profile'),
           tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 22, color }}>👤</Text>
+            <ProfileIcon color={color} />
           ),
         }}
       />
@@ -93,17 +113,49 @@ const MainTabs = (): React.JSX.Element => {
   );
 };
 
+// ── Root Navigator ────────────────────────────────
 const AppNavigator = (): React.JSX.Element => {
+
+  const [isHydrated, setIsHydrated] = useState(false);
+  // ✅ قراءة حالة تسجيل الدخول من Zustand
+  const isLoggedIn       = useAuthStore(state => state.isLoggedIn);
+
+
+useEffect(() => {
+  const unsubscribe =
+    useAuthStore.persist.onFinishHydration(() => {
+      setIsHydrated(true);
+    });
+
+  if (useAuthStore.persist.hasHydrated()) {
+    setIsHydrated(true);
+  }
+
+  return unsubscribe;
+}, []);
+  // ── Loading أثناء التهيئة ─────────────────────
+
+  if (!isHydrated) {
+  return <SplashScreen />;
+}
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
         screenOptions={{
           headerShown: false,
-          animation:   'slide_from_right',
+          animation:   'fade',
         }}>
-        <Stack.Screen name="Login"    component={LoginScreen} />
-        <Stack.Screen name="MainTabs" component={MainTabs} />
+
+        {/* ✅ منطق Auth تلقائي */}
+        {isLoggedIn ? (
+          // مسجل دخول → الشاشة الرئيسية
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+        ) : (
+          // غير مسجل → شاشة الدخول
+          <Stack.Screen name="Login" component={LoginScreen} />
+        )}
+
       </Stack.Navigator>
     </NavigationContainer>
   );
