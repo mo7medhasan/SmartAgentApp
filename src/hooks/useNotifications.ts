@@ -55,7 +55,7 @@ export const useNotifications = () => {
       // ✅ إشعار فتح التطبيق
       const initial = await getInitialNotification();
       if (initial) {
-        setLastNotification(initial);
+        setLastNotification(initial as NotificationData);
       }
 
       setIsInitialized(true);
