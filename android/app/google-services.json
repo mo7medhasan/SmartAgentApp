@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "580329136276",
+    "project_id": "smartagentapp-mo7",
+    "storage_bucket": "smartagentapp-mo7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:580329136276:android:08ad39cd549803edc09481",
+        "android_client_info": {
+          "package_name": "com.smartagentapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiKEhfSk4KgDkZGThbW1aNb78H-qJ4I0o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -9,11 +9,12 @@ import { COLORS, FONT_SIZES } from '@constants/index';
 import { useAuthStore } from '@store/index';
 import { usePosts, useCreatePost } from '@hooks/usePosts';
 import { Post } from '@services/userService';
-
+import { useNotifications } from '@hooks/useNotifications';
 const HomeScreen = (): React.JSX.Element => {
   const { t }     = useTranslation();
   const user      = useAuthStore(state => state.user);
   const [newTitle, setNewTitle] = useState('');
+  const { notifications,  hasPermission } = useNotifications();
 
   // ✅ جلب البيانات مع React Query
   const {
@@ -83,7 +84,20 @@ const HomeScreen = (): React.JSX.Element => {
           👋 {t('home.greeting')}
         </Text>
         <Text style={styles.userName}>{user?.name}</Text>
+           <Text style={styles.notifStatus}>
+          {hasPermission ? '🔔 الإشعارات مفعّلة' : '🔕 الإشعارات مغلقة'}
+        </Text>
       </View>
+      {notifications.length > 0 && (
+        <View style={styles.notifCard}>
+          <Text style={styles.notifTitle}>
+            🔔 {notifications[0].title}
+          </Text>
+          <Text style={styles.notifBody}>
+            {notifications[0].body}
+          </Text>
+        </View>
+      )}
 
       {/* حقل إضافة منشور */}
       <View style={styles.inputRow}>
@@ -232,7 +246,31 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     marginTop: 8,
     textAlign: 'right',
-  },
+  },notifStatus: {
+  fontSize:  FONT_SIZES.xs,
+  color:     COLORS.white,
+  opacity:   0.8,
+  marginTop: 4,
+},
+notifCard: {
+  margin:          12,
+  padding:         12,
+  backgroundColor: COLORS.white,
+  borderRadius:    12,
+  borderLeftWidth: 4,
+  borderLeftColor: COLORS.primary,
+  elevation:       2,
+},
+notifTitle: {
+  fontSize:   FONT_SIZES.md,
+  fontWeight: 'bold',
+  color:      COLORS.black,
+  marginBottom: 4,
+},
+notifBody: {
+  fontSize: FONT_SIZES.sm,
+  color:    COLORS.gray,
+},
 });
 
 export default HomeScreen;

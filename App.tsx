@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // ✅
 import AppNavigator from '@navigation/index';
 import { useAppStore } from '@store/index';
 import './src/locales/index';
+import { onBackgroundMessage } from '@services/notificationService'; // ✅
+import messaging from '@react-native-firebase/messaging';
 
 // ✅ إنشاء QueryClient واحد للتطبيق كله
 const queryClient = new QueryClient({
@@ -20,6 +22,15 @@ const App = (): React.JSX.Element => {
   const fadeAnim  = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
+useEffect(() => {
+  messaging().requestPermission().then(status => {
+    console.log('Permission status:', status);
+  });
+}, []);
+  useEffect(() => {
+    // ✅ تسجيل معالج إشعارات الخلفية
+    onBackgroundMessage();
+  }, []);
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
